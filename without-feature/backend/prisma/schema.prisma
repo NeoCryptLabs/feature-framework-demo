@@ -1,0 +1,57 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  ADMIN
+  VIEWER
+}
+
+enum ChangeType {
+  INCREASE
+  DECREASE
+  NEUTRAL
+}
+
+model User {
+  id        String    @id @default(cuid())
+  email     String    @unique
+  password  String
+  name      String
+  role      Role      @default(VIEWER)
+  createdAt DateTime  @default(now())
+  settings  Setting[]
+}
+
+model DashboardStat {
+  id         String     @id @default(cuid())
+  label      String
+  value      String
+  change     Float
+  changeType ChangeType
+  icon       String
+  order      Int
+}
+
+model AnalyticsEvent {
+  id       String   @id @default(cuid())
+  name     String
+  count    Int
+  date     DateTime
+  category String
+}
+
+model Setting {
+  id          String   @id @default(cuid())
+  key         String   @unique
+  value       String
+  description String
+  updatedAt   DateTime @updatedAt
+  updatedBy   User?    @relation(fields: [updatedById], references: [id])
+  updatedById String?
+}
